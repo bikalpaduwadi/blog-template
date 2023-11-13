@@ -1,0 +1,8 @@
+.container {
+  flex: 5;
+  padding-right: 50px;
+}
+
+.title {
+  margin: 50px 0px;
+}
