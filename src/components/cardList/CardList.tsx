@@ -12,7 +12,7 @@ interface CardListProps {
 
 const getData = async (page: number, categoryName: string) => {
   const res = await fetch(
-    `http://localhost:3005/api/posts?page=${page}&categoryName=${categoryName}`,
+    `http://localhost:3000/api/posts?page=${page}&categoryName=${categoryName}`,
     {
       cache: "no-store",
     }

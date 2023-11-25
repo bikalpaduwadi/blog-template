@@ -8,7 +8,7 @@ import Comments from "@/components/comments/Comments";
 import styles from "./singlePage.module.css";
 
 const getData = async (slug: string) => {
-  const res = await fetch(`http://localhost:3005/api/posts/${slug}`, {
+  const res = await fetch(`http://localhost:3000/api/posts/${slug}`, {
     cache: "no-store",
   });
 

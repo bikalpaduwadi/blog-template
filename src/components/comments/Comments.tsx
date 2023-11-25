@@ -32,7 +32,7 @@ const Comments = (props: CommentsProps) => {
 
   const [desc, setDesc] = useState("");
   const { isLoading, mutate, data } = useSWR(
-    `http://localhost:3005/api/comments?postSlug=${postSlug}`,
+    `http://localhost:3000/api/comments?postSlug=${postSlug}`,
     fetcher
   );
 
