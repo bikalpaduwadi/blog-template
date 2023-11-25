@@ -3,29 +3,33 @@ import Image from "next/image";
 
 import styles from "./card.module.css";
 import Link from "next/link";
+import { Post } from "@prisma/client";
 
-interface CardProps {}
+interface CardProps {
+  post: Post;
+}
 
-const Card = () => {
+const Card = (props: CardProps) => {
+  const { post } = props;
   return (
     <div className={styles.container}>
-      <div className={styles.imageContainer}>
-        <Image src="/p1.jpeg" alt="" fill className={styles.image} />
-      </div>
+      {post.imageUrl && (
+        <div className={styles.imageContainer}>
+          <Image src={post.imageUrl} alt="" fill className={styles.image} />
+        </div>
+      )}
       <div className={styles.textContainer}>
         <div className={styles.detail}>
-          <span className={styles.date}>{new Date().toLocaleDateString()}</span>
-          <span className={styles.categoryTitle}> - CULTURE</span>
+          <span className={styles.date}>
+            {new Date(post.createdAt).toDateString()}
+          </span>
+          <span className={styles.categoryTitle}> - {post.categorySlug}</span>
         </div>
-        <Link href="/">
-          <h1>Lorem ipsum dolor sit amet consectetur adipisicing elit</h1>
+        <Link href={`/posts/${post.slug}`}>
+          <h1>{post.title}</h1>
         </Link>
-        <p className={styles.desc}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis
-          obcaecati at distinctio, debitis, quam, iste eum sit libero excepturi
-          nisi fuga non in placeat illum amet? Fugit ratione consequatur soluta.
-        </p>
-        <Link className={styles.link} href="/">
+        <p className={styles.desc}>{post.description.substring(0, 50)}</p>
+        <Link className={styles.link} href={`/posts/${post.slug}`}>
           Read more
         </Link>
       </div>

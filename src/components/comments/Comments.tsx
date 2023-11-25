@@ -1,13 +1,49 @@
-import React from "react";
+"use client";
 
-import styles from "./comments.module.css";
+import useSWR from "swr";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-interface CommentsProps {}
+import styles from "./comments.module.css";
+import { useSession } from "next-auth/react";
+import { AppComment } from "@/models/Prisma";
 
-const Comments = () => {
-  const isAuthenticated = true;
+interface CommentsProps {
+  postSlug: string;
+}
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!res.ok) {
+    const error = new Error(data.message);
+    throw error;
+  }
+
+  return data as AppComment[];
+};
+
+const Comments = (props: CommentsProps) => {
+  const { postSlug } = props;
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
+
+  const [desc, setDesc] = useState("");
+  const { isLoading, mutate, data } = useSWR(
+    `http://localhost:3005/api/comments?postSlug=${postSlug}`,
+    fetcher
+  );
+
+  const handleSubmit = async () => {
+    await fetch("/api/comments", {
+      method: "post",
+      body: JSON.stringify({ description: desc, postSlug }),
+    });
+
+    mutate();
+  };
 
   return (
     <div className={styles.container}>
@@ -17,35 +53,38 @@ const Comments = () => {
           <textarea
             placeholder="Write a comment..."
             className={styles.input}
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
           ></textarea>
-          <button className={styles.button}>Send</button>
+          <button className={styles.button} onClick={handleSubmit}>
+            Send
+          </button>
         </div>
       ) : (
         <Link href="/login">Login to write a comment</Link>
       )}
 
       <div className={styles.comments}>
-        {[1, 2, 3, 4].map((i) => (
-          <div key={"comment-" + i} className={styles.comment}>
+        {data?.map((item) => (
+          <div key={"comment-" + item.id} className={styles.comment}>
             <div className={styles.user}>
-              <Image
-                src="/p1.jpeg"
-                alt=""
-                width={50}
-                height={50}
-                className={styles.image}
-              />
+              {item?.user?.image && (
+                <Image
+                  src={item.user.image}
+                  alt=""
+                  width={50}
+                  height={50}
+                  className={styles.image}
+                />
+              )}
               <div className={styles.userInfo}>
-                <span className={styles.username}>Jhon Doe</span>
-                <span className={styles.date}>{new Date().toDateString()}</span>
+                <span className={styles.username}>{item?.user?.name}</span>
+                <span className={styles.date}>
+                  {item.createdAt ? item.createdAt.toString() : ""}
+                </span>
               </div>
             </div>
-            <p className={styles.desc}>
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-              Cupiditate ipsa aperiam aliquam consequuntur quo, consequatur
-              fugit dolor aspernatur nisi eaque cum totam omnis deserunt non
-              tempore laboriosam debitis, expedita dicta.
-            </p>
+            <p className={styles.desc}>{item.description}</p>
           </div>
         ))}
       </div>

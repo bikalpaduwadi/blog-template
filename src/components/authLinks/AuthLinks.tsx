@@ -4,16 +4,20 @@ import React, { useState } from "react";
 
 import styles from "./authLinks.module.css";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 interface AuthLinksProps {}
 
 const AuthLinks = () => {
-  const isLoggedIn = false;
+  const { status } = useSession();
+
+  const requireLogin = status === "unauthenticated";
+
   const [openMenu, setOpenMenu] = useState(false);
 
   return (
     <>
-      {isLoggedIn ? (
+      {!requireLogin ? (
         <>
           <Link className={styles.link} href="/write">
             Write
@@ -39,7 +43,7 @@ const AuthLinks = () => {
           <Link href="/home">Home</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/about">About</Link>
-          {isLoggedIn ? (
+          {!requireLogin ? (
             <>
               <Link href="/write">Write</Link>
               <span className={styles.link}>Logout</span>

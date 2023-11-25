@@ -78,3 +78,11 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.ql-container {
+  font-size: 28px;
+}
+
+.quill > .ql-container > .ql-editor.ql-blank::before {
+  color: #b3b3b1;
+}

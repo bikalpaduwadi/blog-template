@@ -3,6 +3,7 @@ import React from "react";
 import styles from "./categoryList.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import { Category } from "@prisma/client";
 
 interface CategoryListProps {}
 
@@ -15,25 +16,41 @@ export const CATEGORIES = [
   "coding",
 ];
 
-const CategoryList = () => {
+const getData = async () => {
+  const res = await fetch("http://localhost:3005/api/categories", {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed");
+  }
+
+  return res.json();
+};
+
+const CategoryList = async () => {
+  const categories: Category[] = await getData();
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Popular Categories</h1>
       <div className={styles.categories}>
-        {CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <Link
-            key={category}
-            className={`${styles.category} ${styles[category]}`}
-            href={`/blog?categoryName=${category}`}
+            key={category.id}
+            className={`${styles.category} ${styles[category.title]}`}
+            href={`/blog?categoryName=${category.title}`}
           >
-            <Image
-              src={`/${category}.png`}
-              alt=""
-              width={32}
-              height={32}
-              className={styles.image}
-            />
-            {category}
+            {category.imageUrl && (
+              <Image
+                src={category.imageUrl}
+                alt=""
+                width={32}
+                height={32}
+                className={styles.image}
+              />
+            )}
+            {category.title}
           </Link>
         ))}
       </div>
